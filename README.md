@@ -38,16 +38,20 @@ class User
   def send_devise_notification(notification, *args)
       # don't forget email not sended without deliver
       message = devise_mailer.send(notification, self, *args)
+      
+      # this is the params you want to anylise whgen something crashes here
       add_to_airbrake_notice = attributes.slice('email', 'name', 'surname', 'cell', 'id')
       
-      NotifyingThread.run_async_with_rescue(add_to_airbrace_notice) { message.deliver }
+      # run message delivering
+      NotifyingThread.run_async_with_rescue(add_to_airbrake_notice) { message.deliver }
   end
   
   #Using AirbrakeNotifyingThreads module 
-  
   include AirbrakeNotifyingThreads
-  # making some external notification async, for example push some data in SalesForce app
+  
+  # making some external call async, for example push some data in SalesForce app
   def send_to_sf
+    # sf_params - is the params you want to anylise whgen something crashes here, in this case it's params sended to SF app
     run_async_with_rescue(sf_params) { send_sf_raw }
   end
   
